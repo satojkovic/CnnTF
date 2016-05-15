@@ -45,3 +45,11 @@ def maybe_download_and_extract():
         statinfo = os.stat(filepath)
         print('Successfully downloaded', filename, statinfo.st_size, 'bytes.')
         tarfile.open(filepath, 'r:gz').extractall(dest_directory)
+
+
+def distorted_inputs():
+    if not FLAGS.data_dir:
+        raise ValueError('please supply a data_dir')
+    data_dir = os.path.join(FLAGS.data_dir, 'cifar-10-batches-bin')
+    return cifar10_input.distorted_inputs(data_dir=data_dir,
+                                          batch_size=FLAGS.batch_size)
