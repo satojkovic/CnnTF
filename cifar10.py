@@ -9,6 +9,7 @@ import os
 import sys
 from six.moves import urllib
 import tarfile
+import cifar10_input
 
 FLAGS = tf.app.flags.FLAGS
 
