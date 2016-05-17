@@ -46,3 +46,24 @@ def distorted_inputs(data_dir, batch_size):
                                            min_queue_examples,
                                            batch_size,
                                            shuffle=True)
+
+
+def _generate_image_and_label_batch(image, label, min_queue_examples,
+                                    batch_size, shuffle):
+    num_preprocess_threads = 16
+    if shuffle:
+        images, label_batch = tf.train.shuffle_batch(
+            [image, label],
+            batch_size=batch_size,
+            num_threads=num_preprocess_threads,
+            capacity=min_queue_examples + 3 * batch_size,
+            min_after_dequeue=min_queue_examples)
+    else:
+        images, label_batch = tf.train.batch(
+            [image, label],
+            batch_size=batch_size,
+            num_threads=num_preprocess_threads,
+            capacity=min_queue_examples + 3 * batch_size)
+
+    tf.image_summary('images', images)
+    return images, tf.reshape(label_batch, [batch_size])
