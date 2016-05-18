@@ -12,6 +12,35 @@ NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 50000
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 10000
 
 
+def read_cifar10(filename_queue):
+    class CIFAR10Record(object):
+        pass
+
+    result = CIFAR10Record()
+
+    label_bytes = 1
+    result.height = 32
+    result.width = 32
+    result.depth = 3
+    image_bytes = result.height * result.width * result.depth
+    record_bytes = label_bytes + image_bytes
+
+    reader = tf.FixedLengthRecordReader(record_bytes=record_bytes)
+    result.key, value = reader.read(filename_queue)
+
+    record_bytes = tf.decode_raw(value, tf.uint8)
+
+    result.label = tf.cast(
+        tf.slice(record_bytes, [0], [label_bytes]), tf.int32)
+
+    depth_major = tf.reshape(
+        tf.slice(record_bytes, [label_bytes], [image_bytes]),
+        [result.depth, result.height, result.width])
+    result.uint8image = tf.transpose(depth_major, [1, 2, 0])
+
+    return result
+
+
 def distorted_inputs(data_dir, batch_size):
     filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i)
                  for i in xrange(1, 6)]
@@ -22,7 +51,7 @@ def distorted_inputs(data_dir, batch_size):
     filename_queue = tf.train.string_input_producer(filenames)
 
     read_input = read_cifar10(filename_queue)
-    reshaped_image = tf.cast(read_input.unit8image, tf.float32)
+    reshaped_image = tf.cast(read_input.uint8image, tf.float32)
 
     height = IMAGE_SIZE
     width = IMAGE_SIZE
