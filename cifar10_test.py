@@ -16,7 +16,7 @@ class TestCifar10(tf.test.TestCase):
     def test_distorted_inputs(self):
         images, labels = cifar10.distorted_inputs()
         with self.test_session() as sess:
-            batch_size, image_size, _, _ = images.shape
+            batch_size, image_size, _, _ = images.eval().shape
             self.assertEqual(128, batch_size)
             self.assertEqual(24, image_size)
 
