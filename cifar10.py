@@ -28,6 +28,12 @@ NUM_CLASSES = 10
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 50000
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 10000
 
+# Constants describing the training process
+INITIAL_LERNING_RATE = 0.1
+NUM_EPOCH_PER_DECAY = 350.0
+LEARNING_RATE_DECAY_FACTOR = 0.1
+MOVING_AVERAGE_DECAY = 0.9999
+
 DATA_URL = 'http://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz'
 
 
@@ -174,3 +180,36 @@ def loss(logits, labels):
     cross_entropy_mean = tf.reduce_mean(cross_entropy, name='cross_entropy')
     tf.add_to_collection('losses', cross_entropy_mean)
     return tf.add_n(tf.get_collection('losses'), name='total_loss')
+
+
+def train(total_loss, global_step):
+    num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
+    decay_steps = int(num_batches_per_epoch * NUM_EPOCH_PER_DECAY)
+
+    lr = tf.train.exponential_decay(INITIAL_LERNING_RATE,
+                                    global_step,
+                                    decay_steps,
+                                    LEARNING_RATE_DECAY_FACTOR,
+                                    staircase=True)
+    tf.scalar_summary('learning_rate', lr)
+
+    loss_average_op = _add_loss_summaries(total_loss)
+
+    with tf.control_dependencies([loss_average_op]):
+        opt = tf.train.GradientDescentOptimizer(lr)
+        grads = opt.compute_gradients(total_loss)
+
+    apply_gradient_op = opt.apply_gradients(grads, global_step=global_step)
+
+    for grad, var in grads:
+        if grad is not None:
+            tf.histogram_summary(var.op.name + '/gradients', grad)
+
+    variable_averages = tf.train.ExponentialMovingAverage(MOVING_AVERAGE_DECAY,
+                                                          global_step)
+    variable_averages_op = variable_averages.apply(tf.trainable_variables())
+
+    with tf.control_dependencies([apply_gradient_op, variable_averages_op]):
+        train_op = tf.no_op(name='train')
+
+    return train_op
