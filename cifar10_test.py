@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import unittest
 import cifar10
 import os
+import tensorflow as tf
 
 
-class TestCifar10(unittest.TestCase):
+class TestCifar10(tf.test.TestCase):
     def test_maybe_download(self):
         cifar10.maybe_download_and_extract()
         self.assertEqual(
@@ -14,4 +14,4 @@ class TestCifar10(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    tf.test.main()
