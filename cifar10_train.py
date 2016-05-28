@@ -4,14 +4,19 @@
 import cifar10
 import tensorflow as tf
 import numpy as np
-import FLAGS
+import time
 import datetime
+import os
 
-time = tf.app.flags.FLAGS
+FLAGS = tf.app.flags.FLAGS
 
 tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
-                           """Directory where to write event logs""",
+                           """Directory where to write event logs"""
                            """and checkpoint.""")
+tf.app.flags.DEFINE_boolean('log_device_placement', False,
+                            """whether to log device placement.""")
+tf.app.flags.DEFINE_integer('max_steps', 1000000,
+                            """Number of batches to run.""")
 
 
 def train():
@@ -55,16 +60,17 @@ def train():
                 format_str = (
                     '%s: step %d, loss = %.2f (%.1f examples/sec; %.3f )'
                     'sec/batch')
-                print(format_str % (datetime.now(), step, loss_value,
+                print(format_str % (datetime.datetime.now(), step, loss_value,
                                     examples_per_sec, sec_per_batch))
 
             if step % 100 == 0:
                 summary_str = sess.run(summary_op)
                 summary_writer.add_summary(summary_str, step)
 
-            if step % 1000 = 0 or (step + 1) == FLAGS.max_steps:
+            if step % 1000 == 0 or (step + 1) == FLAGS.max_steps:
                 checkpoint_path = os.path.join(FLAGS.train_dir, 'model.ckpt')
                 saver.save(sess, checkpoint_path, global_step=step)
+
 
 def main():
     cifar10.maybe_download_and_extract()
