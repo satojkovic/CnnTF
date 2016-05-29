@@ -224,3 +224,12 @@ def _add_loss_summaries(total_loss):
         tf.scalar_summary(l.op.name, loss_averages.average(l))
 
     return loss_averages_op
+
+
+def inputs(eval_data):
+    if not FLAGS.data_dir:
+        raise ValueError('Please supply a data_dir')
+    data_dir = os.path.join(FLAGS.data_dir, 'cifar-10-batches-bin')
+    return cifar10_input.inputs(eval_data=eval_data,
+                                data_dir=data_dir,
+                                batch_size=FLAGS.batch_size)
