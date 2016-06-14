@@ -35,13 +35,13 @@ LEARNING_RATE_DECAY_FACTOR = 0.1
 MOVING_AVERAGE_DECAY = 0.9999
 
 DATA_URL = 'http://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz'
-
+DATA100_URL = 'https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz'
 
 def maybe_download_and_extract():
     dest_directory = FLAGS.data_dir
     if not os.path.exists(dest_directory):
         os.makedirs(dest_directory)
-    filename = DATA_URL.split('/')[-1]
+    filename = DATA100_URL.split('/')[-1]
     filepath = os.path.join(dest_directory, filename)
     if not os.path.exists(filepath):
 
