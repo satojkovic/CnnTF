@@ -45,7 +45,7 @@ def train():
 
         summary_writer = tf.train.SummaryWriter(FLAGS.train_dir, sess.graph)
 
-        for step in xrange(FLAGS.max_steps):
+        for step in range(FLAGS.max_steps):
             start_time = time.time()
             _, loss_value = sess.run([train_op, loss])
             duration = time.time() - start_time

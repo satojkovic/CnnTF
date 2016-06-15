@@ -43,7 +43,7 @@ def read_cifar10(filename_queue):
 
 def distorted_inputs(data_dir, batch_size):
     filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i)
-                 for i in xrange(1, 6)]
+                 for i in range(1, 6)]
     for f in filenames:
         if not tf.gfile.Exists(f):
             raise ValueError('Failed to find file: ' + f)
@@ -101,7 +101,7 @@ def _generate_image_and_label_batch(image, label, min_queue_examples,
 def inputs(eval_data, data_dir, batch_size):
     if not eval_data:
         filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i)
-                     for i in xrange(1, 6)]
+                     for i in range(1, 6)]
         num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
     else:
         filenames = [os.path.join(data_dir, 'test_batch.bin')]
