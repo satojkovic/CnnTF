@@ -37,8 +37,8 @@ def train():
 
         init = tf.initialize_all_variables()
 
-        sess = tf.Session(config=tf.ConfigProto(log_device_placement=
-                                                FLAGS.log_device_placement))
+        sess = tf.Session(config=tf.ConfigProto(
+            log_device_placement=FLAGS.log_device_placement))
         sess.run(init)
 
         tf.train.start_queue_runners(sess=sess)
