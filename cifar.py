@@ -34,7 +34,7 @@ NUM_EPOCH_PER_DECAY = 350.0
 LEARNING_RATE_DECAY_FACTOR = 0.1
 MOVING_AVERAGE_DECAY = 0.9999
 
-DATA_URL = 'http://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz'
+DATA_URL = 'https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz'
 
 
 def maybe_download_and_extract():
