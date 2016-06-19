@@ -7,7 +7,7 @@ from __future__ import print_function
 
 import numpy as np
 import tensorflow as tf
-import cifar10
+import cifar
 import time
 import math
 from datetime import datetime
@@ -71,14 +71,14 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
 def evaluate():
     with tf.Graph().as_default() as g:
         eval_data = FLAGS.eval_data == 'test'
-        images, labels = cifar10.inputs(eval_data=eval_data)
+        images, labels = cifar.inputs(eval_data=eval_data)
 
-        logits = cifar10.inference(images)
+        logits = cifar.inference(images)
 
         top_k_op = tf.nn.in_top_k(logits, labels, 1)
 
         variable_averages = tf.train.ExponentialMovingAverage(
-            cifar10.MOVING_AVERAGE_DECAY)
+            cifar.MOVING_AVERAGE_DECAY)
         variable_to_restore = variable_averages.variables_to_restore()
         saver = tf.train.Saver(variable_to_restore)
 
@@ -94,7 +94,7 @@ def evaluate():
 
 
 def main(argv=None):
-    cifar10.maybe_download_and_extract()
+    cifar.maybe_download_and_extract()
     if tf.gfile.Exists(FLAGS.eval_dir):
         tf.gfile.DeleteRecursively(FLAGS.eval_dir)
     tf.gfile.MakeDirs(FLAGS.eval_dir)

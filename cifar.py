@@ -9,7 +9,7 @@ import os
 import sys
 from six.moves import urllib
 import tarfile
-import cifar10_input
+import cifar_input
 import re
 
 TOWER_NAME = 'tower'
@@ -19,10 +19,11 @@ FLAGS = tf.app.flags.FLAGS
 # Basic model parameters
 tf.app.flags.DEFINE_integer('batch_size', 128,
                             """Number of images to process in batch""")
-tf.app.flags.DEFINE_string('data_dir', '/tmp/cifar10_data',
-                           """Path to the CIFAR-10 data directory""")
+tf.app.flags.DEFINE_string(
+    'data_dir', '/tmp/cifar_data',
+    """Path to the CIFAR-10 or CIFAR-100 data directory""")
 
-# Global constants describing the CIFAR-10 data set.
+# Global constants describing the CIFAR-10 or CIFAR-100 data set.
 IMAGE_SIZE = 24
 NUM_CLASSES = 10
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 50000
@@ -34,13 +35,18 @@ NUM_EPOCH_PER_DECAY = 350.0
 LEARNING_RATE_DECAY_FACTOR = 0.1
 MOVING_AVERAGE_DECAY = 0.9999
 
-DATA_URL = 'http://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz'
+DATA10_URL = 'https://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz'
+DATA100_URL = 'https://www.cs.toronto.edu/~kriz/cifar-100-binary.tar.gz'
 
 
-def maybe_download_and_extract():
+def maybe_download_and_extract(dataset_no):
     dest_directory = FLAGS.data_dir
     if not os.path.exists(dest_directory):
         os.makedirs(dest_directory)
+    if dataset_no == '10':
+        DATA_URL = DATA10_URL
+    else:
+        DATA_URL = DATA100_URL
     filename = DATA_URL.split('/')[-1]
     filepath = os.path.join(dest_directory, filename)
     if not os.path.exists(filepath):
@@ -57,19 +63,24 @@ def maybe_download_and_extract():
         tarfile.open(filepath, 'r:gz').extractall(dest_directory)
 
 
-def distorted_inputs():
+def distorted_inputs(dataset_no):
     if not FLAGS.data_dir:
         raise ValueError('please supply a data_dir')
-    data_dir = os.path.join(FLAGS.data_dir, 'cifar-10-batches-bin')
-    return cifar10_input.distorted_inputs(data_dir=data_dir,
-                                          batch_size=FLAGS.batch_size)
+    if dataset_no == '10':
+        data_dir = os.path.join(FLAGS.data_dir, 'cifar-10-batches-bin')
+    else:
+        data_dir = os.path.join(FLAGS.data_dir, 'cifar-100-binary')
+    return cifar_input.distorted_inputs(dataset_no,
+                                        data_dir=data_dir,
+                                        batch_size=FLAGS.batch_size)
 
 
 def inference(images):
     with tf.variable_scope('conv1') as scope:
-        kernel = _variable_with_weight_decay(
-            'weights', shape=[5, 5, 3, 64],
-            stddev=1e-4, wd=0.0)
+        kernel = _variable_with_weight_decay('weights',
+                                             shape=[5, 5, 3, 64],
+                                             stddev=1e-4,
+                                             wd=0.0)
         conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
         biases = _variable_on_cpu('biases', [64], tf.constant_initializer(0.0))
         bias = tf.nn.bias_add(conv, biases)
@@ -90,9 +101,10 @@ def inference(images):
                       name='norm1')
 
     with tf.variable_scope('conv2') as scope:
-        kernel = _variable_with_weight_decay(
-            'weights', shape=[5, 5, 64, 64],
-            stddev=1e-4, wd=0.0)
+        kernel = _variable_with_weight_decay('weights',
+                                             shape=[5, 5, 64, 64],
+                                             stddev=1e-4,
+                                             wd=0.0)
 
         conv = tf.nn.conv2d(norm1, kernel, [1, 1, 1, 1], padding='SAME')
         biases = _variable_on_cpu('biases', [64], tf.constant_initializer(0.1))
@@ -115,9 +127,10 @@ def inference(images):
     with tf.variable_scope('local3') as scope:
         reshape = tf.reshape(pool2, [FLAGS.batch_size, -1])
         dim = reshape.get_shape()[1].value
-        weights = _variable_with_weight_decay(
-            'weights', shape=[dim, 384],
-            stddev=0.04, wd=0.004)
+        weights = _variable_with_weight_decay('weights',
+                                              shape=[dim, 384],
+                                              stddev=0.04,
+                                              wd=0.004)
         biases = _variable_on_cpu('biases', [384],
                                   tf.constant_initializer(0.1))
         local3 = tf.nn.relu(
@@ -126,9 +139,10 @@ def inference(images):
         _activation_summary(local3)
 
     with tf.variable_scope('local4') as scope:
-        weights = _variable_with_weight_decay(
-            'weights', shape=[384, 192],
-            stddev=0.04, wd=0.004)
+        weights = _variable_with_weight_decay('weights',
+                                              shape=[384, 192],
+                                              stddev=0.04,
+                                              wd=0.004)
         biases = _variable_on_cpu('biases', [192],
                                   tf.constant_initializer(0.1))
         local4 = tf.nn.relu(
@@ -230,6 +244,6 @@ def inputs(eval_data):
     if not FLAGS.data_dir:
         raise ValueError('Please supply a data_dir')
     data_dir = os.path.join(FLAGS.data_dir, 'cifar-10-batches-bin')
-    return cifar10_input.inputs(eval_data=eval_data,
-                                data_dir=data_dir,
-                                batch_size=FLAGS.batch_size)
+    return cifar_input.inputs(eval_data=eval_data,
+                              data_dir=data_dir,
+                              batch_size=FLAGS.batch_size)

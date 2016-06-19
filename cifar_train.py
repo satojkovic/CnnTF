@@ -1,16 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-import cifar10
+"""
+Usage:
+    cifar_train.py <dataset_no>
+    cifar_train.py (-h | --help)
+Options:
+    -h --help    show help message.
+"""
+import cifar
 import tensorflow as tf
 import numpy as np
 import time
 import datetime
 import os
+from docopt import docopt
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
+tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar_train',
                            """Directory where to write event logs"""
                            """and checkpoint.""")
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
@@ -19,17 +26,17 @@ tf.app.flags.DEFINE_integer('max_steps', 1000000,
                             """Number of batches to run.""")
 
 
-def train():
+def train(dataset_no):
     with tf.Graph().as_default():
         global_step = tf.Variable(0, trainable=False)
 
-        images, labels = cifar10.distorted_inputs()
+        images, labels = cifar.distorted_inputs(dataset_no)
 
-        logits = cifar10.inference(images)
+        logits = cifar.inference(images)
 
-        loss = cifar10.loss(logits, labels)
+        loss = cifar.loss(logits, labels)
 
-        train_op = cifar10.train(loss, global_step)
+        train_op = cifar.train(loss, global_step)
 
         saver = tf.train.Saver(tf.all_variables())
 
@@ -37,15 +44,15 @@ def train():
 
         init = tf.initialize_all_variables()
 
-        sess = tf.Session(config=tf.ConfigProto(log_device_placement=
-                                                FLAGS.log_device_placement))
+        sess = tf.Session(config=tf.ConfigProto(
+            log_device_placement=FLAGS.log_device_placement))
         sess.run(init)
 
         tf.train.start_queue_runners(sess=sess)
 
         summary_writer = tf.train.SummaryWriter(FLAGS.train_dir, sess.graph)
 
-        for step in xrange(FLAGS.max_steps):
+        for step in range(FLAGS.max_steps):
             start_time = time.time()
             _, loss_value = sess.run([train_op, loss])
             duration = time.time() - start_time
@@ -73,11 +80,14 @@ def train():
 
 
 def main():
-    cifar10.maybe_download_and_extract()
+    args = docopt(__doc__)
+    dataset_no = args['<dataset_no>']
+
+    cifar.maybe_download_and_extract(dataset_no)
     if tf.gfile.Exists(FLAGS.train_dir):
         tf.gfile.DeleteRecursively(FLAGS.train_dir)
     tf.gfile.MakeDirs(FLAGS.train_dir)
-    train()
+    train(dataset_no)
 
 
 if __name__ == '__main__':
