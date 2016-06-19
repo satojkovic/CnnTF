@@ -41,9 +41,12 @@ def read_cifar10(filename_queue):
     return result
 
 
-def distorted_inputs(data_dir, batch_size):
-    filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i)
-                 for i in range(1, 6)]
+def distorted_inputs(dataset_no, data_dir, batch_size):
+    if dataset_no == '10':
+        filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i)
+                     for i in range(1, 6)]
+    else:
+        filenames = [os.path.join(data_dir, 'train.bin')]
     for f in filenames:
         if not tf.gfile.Exists(f):
             raise ValueError('Failed to find file: ' + f)
@@ -59,8 +62,9 @@ def distorted_inputs(data_dir, batch_size):
     distorted_image = tf.random_crop(reshaped_image, [height, width, 3])
     distorted_image = tf.image.random_flip_left_right(distorted_image)
     distorted_image = tf.image.random_brightness(distorted_image, max_delta=63)
-    distorted_image = tf.image.random_contrast(
-        distorted_image, lower=0.2, upper=1.8)
+    distorted_image = tf.image.random_contrast(distorted_image,
+                                               lower=0.2,
+                                               upper=1.8)
 
     float_image = tf.image.per_image_whitening(distorted_image)
 
