@@ -4,6 +4,8 @@
 import tensorflow as tf
 import numpy as np
 import sys
+import cv2
+from imagenet_classes import class_names
 
 # parameters
 patch_size = 3
@@ -208,11 +210,7 @@ def vgg16(x, weights, biases, initial_weights):
     # add paramters of fc3 layer
     params += [weights['fc3'], biases['fc3']]
 
-    # weights initialize
-    if initial_weights is not None:
-        assign_ops = [w.assign(v) for w, v in zip(params, initial_weights)]
-
-        # softmax layer
+    # softmax layer
     pred = tf.nn.softmax(fc3)
 
     return pred, params
@@ -349,6 +347,25 @@ def main():
     x = tf.placeholder(
         tf.float32, shape=[None, image_size, image_size, n_img_channels])
     vgg, params = vgg16(x, weights, biases, initial_weights)
+
+    # initialize weights from a file
+    if initial_weights is not None:
+        assign_ops = [w.assign(v) for w, v in zip(params, initial_weights)]
+
+    # launch a model
+    init = tf.global_variables_initializer()
+    with tf.Session() as sess:
+        sess.run(init)
+        img = cv2.imread('laska.png')
+        img = cv2.resize(img, (image_size, image_size))
+        if initial_weights is not None:
+            sess.run(assign_ops)
+            print("Initialized by pre-learned weights")
+
+        prob = sess.run(vgg, feed_dict={x: [img]})[0]
+        preds = (np.argsort(prob)[::-1])[0:5]
+        for p in preds:
+            print(class_names[p], prob[p])
 
 
 if __name__ == '__main__':
