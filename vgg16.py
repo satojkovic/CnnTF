@@ -4,8 +4,8 @@
 import tensorflow as tf
 import numpy as np
 import sys
-import cv2
 from imagenet_classes import class_names
+from scipy.misc import imread, imresize
 
 # parameters
 patch_size = 3
@@ -356,8 +356,8 @@ def main():
     init = tf.global_variables_initializer()
     with tf.Session() as sess:
         sess.run(init)
-        img = cv2.imread('laska.png')
-        img = cv2.resize(img, (image_size, image_size))
+        img = imread('laska.png', mode='RGB')
+        img = imresize(img, (image_size, image_size))
         if initial_weights is not None:
             sess.run(assign_ops)
             print("Initialized by pre-learned weights")
