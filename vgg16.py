@@ -26,9 +26,18 @@ channels = {
 }
 
 
-def vgg16(x, weights, biases, initial_weights):
+def vgg16(x, weights, biases):
     # paramters
     params = []
+
+    # zero-mean
+    with tf.name_scope('preproc') as scope:
+        mean = tf.constant(
+            [123.68, 116.779, 103.939],
+            dtype=tf.float32,
+            shape=[1, 1, 1, 3],
+            name='img_mean')
+        x = x - mean
 
     # conv layer1_1 with relu
     with tf.name_scope('conv1_1') as scope:
@@ -346,7 +355,7 @@ def main():
     # construct a model
     x = tf.placeholder(
         tf.float32, shape=[None, image_size, image_size, n_img_channels])
-    vgg, params = vgg16(x, weights, biases, initial_weights)
+    vgg, params = vgg16(x, weights, biases)
 
     # initialize weights from a file
     if initial_weights is not None:
