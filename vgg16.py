@@ -111,7 +111,7 @@ def vgg16(x, weights, biases, net={}):
     with tf.name_scope('conv3_2') as scope:
         conv3_2 = tf.nn.conv2d(
             conv3_1, weights['conv3_2'], [1, 1, 1, 1], padding='SAME')
-        conv3_2 = tf.nn.bias_add(conv3_1, biases['conv3_2'])
+        conv3_2 = tf.nn.bias_add(conv3_2, biases['conv3_2'])
         conv3_2 = tf.nn.relu(conv3_2)
     # add paramters of conv3_2 layer
     params += [weights['conv3_2'], biases['conv3_2']]
