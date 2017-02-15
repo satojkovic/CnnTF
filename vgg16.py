@@ -26,7 +26,7 @@ channels = {
 }
 
 
-def vgg16(x, weights, biases):
+def vgg16(x, weights, biases, net={}):
     # paramters
     params = []
 
@@ -47,6 +47,7 @@ def vgg16(x, weights, biases):
         conv1_1 = tf.nn.relu(conv1_1, name=scope)
     # add paramters of conv1_1 layer
     params += [weights['conv1_1'], biases['conv1_1']]
+    net['conv1_1'] = conv1_1
 
     # conv layer1_2 with relu
     with tf.name_scope('conv1_2') as scope:
@@ -56,6 +57,7 @@ def vgg16(x, weights, biases):
         conv1_2 = tf.nn.relu(conv1_2, name=scope)
     # add paramters of conv1_2 layer
     params += [weights['conv1_2'], biases['conv1_2']]
+    net['conv1_2'] = conv1_2
 
     # max pooling
     pool1 = tf.nn.max_pool(
@@ -64,6 +66,7 @@ def vgg16(x, weights, biases):
         strides=[1, 2, 2, 1],
         padding='SAME',
         name='pool1')
+    net['pool1'] = pool1
 
     # conv laer2_1 with relu
     with tf.name_scope('conv2_1') as scope:
@@ -73,6 +76,7 @@ def vgg16(x, weights, biases):
         conv2_1 = tf.nn.relu(conv2_1)
     # add paramters of conv2_1 layer
     params += [weights['conv2_1'], biases['conv2_1']]
+    net['conv2_1'] = conv2_1
 
     # conv layer2_2 with relu
     with tf.name_scope('conv2_2') as scope:
@@ -82,6 +86,7 @@ def vgg16(x, weights, biases):
         conv2_2 = tf.nn.relu(conv2_2)
     # add paramters of conv2_2 layer
     params += [weights['conv2_2'], biases['conv2_2']]
+    net['conv2_2'] = conv2_2
 
     # max pooling
     pool2 = tf.nn.max_pool(
@@ -90,6 +95,7 @@ def vgg16(x, weights, biases):
         strides=[1, 2, 2, 1],
         padding='SAME',
         name='pool2')
+    net['pool2'] = pool2
 
     # conv layer3_1 with relu
     with tf.name_scope('conv3_1') as scope:
@@ -99,6 +105,7 @@ def vgg16(x, weights, biases):
         conv3_1 = tf.nn.relu(conv3_1)
     # add paramters of conv3_1 layer
     params += [weights['conv3_1'], biases['conv3_1']]
+    net['conv3_1'] = conv3_1
 
     # conv layer3_2 with relu
     with tf.name_scope('conv3_2') as scope:
@@ -108,6 +115,7 @@ def vgg16(x, weights, biases):
         conv3_2 = tf.nn.relu(conv3_2)
     # add paramters of conv3_2 layer
     params += [weights['conv3_2'], biases['conv3_2']]
+    net['conv3_2'] = conv3_2
 
     # conv layer3_3 with relu
     with tf.name_scope('conv3_3') as scope:
@@ -117,6 +125,7 @@ def vgg16(x, weights, biases):
         conv3_3 = tf.nn.relu(conv3_3)
     # add paramters of conv3_3 layer
     params += [weights['conv3_3'], biases['conv3_3']]
+    net['conv3_3'] = conv3_3
 
     # max pooling
     pool3 = tf.nn.max_pool(
@@ -125,6 +134,8 @@ def vgg16(x, weights, biases):
         strides=[1, 2, 2, 1],
         padding='SAME',
         name='pool3')
+    net['pool3'] = pool3
+
     # conv layer4_1 with relu
     with tf.name_scope('conv4_1') as scope:
         conv4_1 = tf.nn.conv2d(
@@ -133,6 +144,7 @@ def vgg16(x, weights, biases):
         conv4_1 = tf.nn.relu(conv4_1)
     # add paramters of conv4_1 layer
     params += [weights['conv4_1'], biases['conv4_1']]
+    net['conv4_1'] = conv4_1
 
     # conv layer4_2 with relu
     with tf.name_scope('conv4_2') as scope:
@@ -142,6 +154,7 @@ def vgg16(x, weights, biases):
         conv4_2 = tf.nn.relu(conv4_2)
     # add paramters of conv4_2 layer
     params += [weights['conv4_2'], biases['conv4_2']]
+    net['conv4_2'] = conv4_2
 
     # conv layer4_3 with relu
     with tf.name_scope('conv4_3') as scope:
@@ -151,6 +164,7 @@ def vgg16(x, weights, biases):
         conv4_3 = tf.nn.relu(conv4_3)
     # add paramters of conv4_3 layer
     params += [weights['conv4_3'], biases['conv4_3']]
+    net['conv4_3'] = conv4_3
 
     # max pooling
     pool4 = tf.nn.max_pool(
@@ -159,6 +173,7 @@ def vgg16(x, weights, biases):
         strides=[1, 2, 2, 1],
         padding='SAME',
         name='pool4')
+    net['pool4'] = pool4
 
     # conv layer5_1 with relu
     with tf.name_scope('conv5_1') as scope:
@@ -168,6 +183,7 @@ def vgg16(x, weights, biases):
         conv5_1 = tf.nn.relu(conv5_1)
     # add paramters of conv5_1 layer
     params += [weights['conv5_1'], biases['conv5_1']]
+    net['conv5_1'] = conv5_1
 
     # conv layer5_2 with relu
     with tf.name_scope('conv5_2') as scope:
@@ -177,6 +193,7 @@ def vgg16(x, weights, biases):
         conv5_2 = tf.nn.relu(conv5_2)
     # add paramters of conv5_2 layer
     params += [weights['conv5_2'], biases['conv5_2']]
+    net['conv5_2'] = conv5_2
 
     # conv layer5_3 with relu
     with tf.name_scope('conv5_3') as scope:
@@ -186,6 +203,7 @@ def vgg16(x, weights, biases):
         conv5_3 = tf.nn.relu(conv5_3)
     # add paramters of conv5_3 layer
     params += [weights['conv5_3'], biases['conv5_3']]
+    net['conv5_3'] = conv5_3
 
     # max pooling
     pool5 = tf.nn.max_pool(
@@ -194,6 +212,7 @@ def vgg16(x, weights, biases):
         strides=[1, 2, 2, 1],
         padding='SAME',
         name='pool5')
+    net['pool5'] = pool5
 
     # fc layer1
     with tf.name_scope('fc1') as scope:
@@ -205,6 +224,7 @@ def vgg16(x, weights, biases):
         fc1 = tf.nn.relu(fc1)
     # add paramters of fc1 layer
     params += [weights['fc1'], biases['fc1']]
+    net['fc1'] = fc1
 
     # fc layer2
     with tf.name_scope('fc2') as scope:
@@ -212,12 +232,14 @@ def vgg16(x, weights, biases):
         fc2 = tf.nn.relu(fc2)
     # add paramters of fc2 layer
     params += [weights['fc2'], biases['fc2']]
+    net['fc2'] = fc2
 
     # fc layer3
     with tf.name_scope('fc3') as scope:
         fc3 = tf.nn.bias_add(tf.matmul(fc2, weights['fc3']), biases['fc3'])
     # add paramters of fc3 layer
     params += [weights['fc3'], biases['fc3']]
+    net['fc3'] = fc3
 
     # softmax layer
     pred = tf.nn.softmax(fc3)
@@ -353,9 +375,10 @@ def main():
     }
 
     # construct a model
+    net = {}
     x = tf.placeholder(
         tf.float32, shape=[None, image_size, image_size, n_img_channels])
-    vgg, params = vgg16(x, weights, biases)
+    vgg, params = vgg16(x, weights, biases, net)
 
     # initialize weights from a file
     if initial_weights is not None:
@@ -375,6 +398,15 @@ def main():
         preds = (np.argsort(prob)[::-1])[0:5]
         for p in preds:
             print(class_names[p], prob[p])
+
+        # for debugging
+        for k in net.keys():
+            [out_] = sess.run([net[k]], feed_dict={x: [img]})
+            out_fname = '_'.join(['my', k]) + '.txt'
+            with open(out_fname, 'w') as f:
+                f.writelines(
+                    '\n'.join([np.str(i) for i in np.array(out_).flatten()]))
+                f.writelines('\n')
 
 
 if __name__ == '__main__':
